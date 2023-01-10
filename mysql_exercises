@@ -1,0 +1,150 @@
+select fa.actor_id, concat(first_name, ' ' , last_name) as fullName, count(*) as films
+from film_actor fa
+join actor a on fa.actor_id = a.actor_id
+group by 1, 2
+order by 3 desc
+
+select p.customer_id, concat(c.first_name, ' ', c.last_name) as CustomerName, p.staff_id, concat(s.first_name, ' ', s.last_name) as StaffName, sum(amount) as total 
+from payment p
+join customer c on p.customer_id = c.customer_id
+join staff s on p.staff_id = s.staff_id
+group by 1, 3
+
+select distinct count(*) from film
+
+select rating, count(*) from film
+group by 1
+
+select distinct release_year from film
+
+select * from rental limit 10
+
+select * from rental
+where inventory_id = 367
+
+select * from rental
+where inventory_id = 367 and staff_id = 1
+
+select distinct Continent from country
+
+select co.country, count(*) from customer c
+join address a on c.address_id = a.address_id
+join city ci on a.city_id = ci.city_id
+join country co on ci.country_id = co.country_id
+where country = 'India'
+
+select Name, population from city
+where population > 1000000 and CountryCode in (select Code from country where Name = 'South Korea')
+
+select name, population from city
+where population between 8000000 and 10000000
+order by population desc
+
+select Name, IndepYear, population from country
+where IndepYear between 1940 and 1950
+order by IndepYear
+
+select * from countrylanguage
+where (Language = 'Spanish' or Language = 'Korean' or Language='English') and Percentage >= 95
+order by percentage desc;
+
+select code, name, continent, GovernmentForm, Population
+from country
+WHERE code LIKE "A%" and GovernmentForm LIKE "%Republic%"
+
+select count(*) from actor
+where first_name = 'DAN'
+
+select * from film_text
+where title like '%ice%' and description like '%drama%';
+
+select * from film_list
+where (price between 1 and 4) and length >= 180 and category not in ('Sci-Fi', 'Animation');
+
+select count(distinct Continent) as ContCat from country;
+
+select CountryCode, count(Name) as TotalCity from city
+group by CountryCode 
+order by count(Name) desc
+limit 5;
+
+select Continent, count(Code) as TotalCountry from country
+group by Continent
+order by count(Code) desc;
+
+select continent, count(Code) as CNT, round(std(GNP), 2) as stdGNP from country
+where population >= 10000000
+group by Continent
+order by 3 desc;
+
+select CountryCode, sum(population) as TotalPopulation from city
+group by CountryCode
+having sum(population) > 50000000
+order by 2 desc;
+
+select language, CNT, ranking
+from(
+	select language, count(countryCode) as CNT, rank() over(order by count(countryCode) desc) as ranking from countrylanguage
+	group by language
+	order by count(countryCode) desc
+	) a
+where ranking between 6 and 10;
+
+select Language, count(CountryCode) as count
+from countrylanguage
+GROUP BY Language
+ORDER BY count DESC
+LIMIT 5, 5; #6번째 부터 시작해 5개의 row를 가져오는 것
+
+select language, count(countrycode) as cnt from countrylanguage
+group by language
+having count(countrycode) >= 15
+order by 2 desc
+
+select continent, sum(surfaceArea) as totalArea from country
+group by continent
+order by 2 desc
+
+select name, population from country
+where population > (select population from country where name = 'Mexico')
+order by 2 desc
+
+select co.name, count(*) as CityNum from country co
+join city ci on co.code = ci.countryCode
+group by co.name
+order by 2 desc
+limit 10;
+
+select language, sum(population * percentage / 100) as total from countrylanguage cl
+join country co on cl.countrycode = co.code
+group by language
+order by 2 desc
+limit 10;
+
+select ci.name, countrycode, co.population as countryPop, ci.population as CityPop, round(ci.population / co.population * 100, 4) as PCT 
+from country co
+join city ci on co.code = ci.countrycode
+where co.population * 0.1 < ci.population and ci.population > 5000000
+order by 5 desc;
+
+select name, round(population / surfacearea) as density, count(language) as NumLang from country co
+join countrylanguage cl on co.code = cl.countrycode
+where surfacearea > 10000 and (population/surfacearea) >= 200
+group by 1, 2
+having count(language) >= 5
+order by 3 desc;
+
+select a.CountryCode, name as city, Population, LangVar, languages
+from(
+	select code as CountryCode, name as CountryName, count(language) as LangVar, group_concat(distinct language separator ', ') as languages from countrylanguage cl
+	join country co on cl.countrycode = co.code
+	group by code, name
+	having count(language) <= 3
+) a
+join city ci on a.CountryCode = ci.CountryCode
+where population >= 3000000
+order by 3 desc;
+
+
+
+
